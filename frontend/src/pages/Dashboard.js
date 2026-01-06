@@ -49,7 +49,14 @@ const Dashboard = () => {
 
   const handleCreateProject = async () => {
     try {
-      const response = await projectAPI.create(newProject);
+      const projectData = { ...newProject };
+
+      // Remove empty description to avoid validation issues
+      if (!projectData.description) {
+        delete projectData.description;
+      }
+
+      const response = await projectAPI.create(projectData);
       setProjects([response.data.data, ...projects]);
       setOpenDialog(false);
       setNewProject({ name: '', description: '', workspace: 'Personal' });

@@ -170,7 +170,14 @@ const ProjectView = () => {
 
   const handleUpdateProject = async () => {
     try {
-      await projectAPI.update(projectId, editProjectData);
+      const updateData = { ...editProjectData };
+
+      // Remove empty description to avoid validation issues
+      if (!updateData.description) {
+        delete updateData.description;
+      }
+
+      await projectAPI.update(projectId, updateData);
       setOpenEditProjectDialog(false);
       fetchProject();
       enqueueSnackbar('Project updated successfully', { variant: 'success' });
