@@ -1,0 +1,70 @@
+const express = require('express');
+const passport = require('passport');
+const router = express.Router();
+const {
+  register,
+  login,
+  logout,
+  getMe,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+  updateProfile,
+  updatePassword,
+  updateNotificationPreferences,
+} = require('../controllers/authController');
+const { protect } = require('../middleware/auth');
+const {
+  registerValidation,
+  loginValidation,
+  emailValidation,
+  passwordValidation,
+  validate,
+} = require('../middleware/validation');
+const { authLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
+
+// Public routes
+router.post('/register', authLimiter, registerValidation, validate, register);
+router.post('/login', authLimiter, loginValidation, validate, login);
+router.get('/verify-email/:token', verifyEmail);
+router.post('/forgot-password', passwordResetLimiter, emailValidation, validate, forgotPassword);
+router.post('/reset-password/:token', passwordValidation, validate, resetPassword);
+
+// OAuth routes - Google
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login` }),
+  (req, res) => {
+    const { sendTokenResponse } = require('../utils/jwt');
+    sendTokenResponse(req.user, 200, res);
+  }
+);
+
+// OAuth routes - GitHub
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+router.get('/github/callback',
+  passport.authenticate('github', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login` }),
+  (req, res) => {
+    const { sendTokenResponse } = require('../utils/jwt');
+    sendTokenResponse(req.user, 200, res);
+  }
+);
+
+// OAuth routes - Microsoft
+router.get('/microsoft', passport.authenticate('microsoft', { scope: ['user.read'] }));
+router.get('/microsoft/callback',
+  passport.authenticate('microsoft', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login` }),
+  (req, res) => {
+    const { sendTokenResponse } = require('../utils/jwt');
+    sendTokenResponse(req.user, 200, res);
+  }
+);
+
+// Protected routes
+router.post('/logout', protect, logout);
+router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile);
+router.put('/update-password', protect, passwordValidation, validate, updatePassword);
+router.put('/notification-preferences', protect, updateNotificationPreferences);
+
+module.exports = router;
