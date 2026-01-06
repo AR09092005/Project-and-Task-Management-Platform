@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ProjectView from './pages/ProjectView';
 import TaskView from './pages/TaskView';
+import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
@@ -51,6 +52,7 @@ function App() {
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="profile" element={<Profile />} />
         <Route path="projects/:projectId" element={<ProjectView />} />
         <Route path="projects/:projectId/tasks/:taskId" element={<TaskView />} />
       </Route>
