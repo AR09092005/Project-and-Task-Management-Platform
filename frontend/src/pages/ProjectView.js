@@ -131,11 +131,21 @@ const ProjectView = () => {
   const handleCreateTask = async () => {
     try {
       const taskData = { ...newTask };
-      if (taskData.tags.length > 0) {
-        taskData.tags = taskData.tags;
+
+      // Remove empty fields to avoid validation errors
+      if (!taskData.dueDate) {
+        delete taskData.dueDate;
       }
-      if (taskData.estimatedHours) {
+      if (!taskData.estimatedHours) {
+        delete taskData.estimatedHours;
+      } else {
         taskData.estimatedHours = parseFloat(taskData.estimatedHours);
+      }
+      if (!taskData.description) {
+        delete taskData.description;
+      }
+      if (taskData.tags.length === 0) {
+        delete taskData.tags;
       }
 
       const response = await taskAPI.create(projectId, taskData);
