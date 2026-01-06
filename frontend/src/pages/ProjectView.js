@@ -35,6 +35,7 @@ import {
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { projectAPI, taskAPI } from '../services/api';
+import TeamMembers from '../components/TeamMembers';
 
 const ProjectView = () => {
   const { projectId } = useParams();
@@ -265,24 +266,12 @@ const ProjectView = () => {
                 </Typography>
                 <Typography>{project.workspace}</Typography>
               </Box>
-              <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Members ({project.members?.length || 0})
-                </Typography>
-                <AvatarGroup max={4}>
-                  {project.members?.map((member) => (
-                    <Avatar
-                      key={member._id}
-                      alt={member.user?.name}
-                      src={member.user?.profilePicture}
-                    />
-                  ))}
-                </AvatarGroup>
-              </Box>
             </CardContent>
           </Card>
 
-          <Card>
+          <TeamMembers project={project} onUpdate={fetchProject} />
+
+          <Card sx={{ mt: 2 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                 <FilterList sx={{ mr: 1 }} />

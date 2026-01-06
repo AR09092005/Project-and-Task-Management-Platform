@@ -8,16 +8,15 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Badge,
   Avatar,
   Container,
 } from '@mui/material';
 import {
-  Notifications as NotificationsIcon,
   AccountCircle,
   Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import Notifications from './Notifications';
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -55,11 +54,7 @@ const Layout = () => {
             Task Management Platform
           </Typography>
 
-          <IconButton size="large" color="inherit" sx={{ mr: 1 }}>
-            <Badge badgeContent={0} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          <Notifications />
 
           <IconButton
             size="large"

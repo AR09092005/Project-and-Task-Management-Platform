@@ -7,6 +7,7 @@ import { SnackbarProvider } from 'notistack';
 import App from './App';
 import theme from './theme';
 import { AuthProvider } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,7 +27,9 @@ root.render(
           <CssBaseline />
           <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
             <AuthProvider>
-              <App />
+              <SocketProvider>
+                <App />
+              </SocketProvider>
             </AuthProvider>
           </SnackbarProvider>
         </ThemeProvider>
