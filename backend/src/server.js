@@ -65,6 +65,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/invites', inviteRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // Nested routes
 app.use('/api/projects/:projectId/tasks', taskRoutes);
