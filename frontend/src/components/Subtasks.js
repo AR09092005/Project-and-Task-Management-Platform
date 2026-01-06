@@ -45,7 +45,7 @@ const Subtasks = ({ task, onUpdate }) => {
     try {
       await taskAPI.create(task.project, {
         title: newSubtaskTitle,
-        parent: task._id,
+        parentTask: task._id,
         status: 'To Do',
         priority: 'Medium',
       });

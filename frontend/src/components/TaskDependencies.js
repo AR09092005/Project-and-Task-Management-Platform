@@ -79,7 +79,7 @@ const TaskDependencies = ({ task, projectTasks, onUpdate }) => {
       (t) =>
         t._id !== task._id &&
         !dependencies.some((d) => d.task?._id === t._id) &&
-        t.parent?.toString() !== task._id.toString()
+        t.parentTask?.toString() !== task._id.toString()
     ) || [];
   };
 
@@ -200,7 +200,7 @@ const TaskDependencies = ({ task, projectTasks, onUpdate }) => {
                   This task blocks...
                 </Box>
               </MenuItem>
-              <MenuItem value="related">
+              <MenuItem value="relates_to">
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <LinkIcon fontSize="small" />
                   Related to...
