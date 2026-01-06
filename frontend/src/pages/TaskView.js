@@ -31,6 +31,8 @@ import {
 import { useSnackbar } from 'notistack';
 import { taskAPI, commentAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import Subtasks from '../components/Subtasks';
+import TaskDependencies from '../components/TaskDependencies';
 
 const TaskView = () => {
   const { projectId, taskId } = useParams();
@@ -38,6 +40,7 @@ const TaskView = () => {
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const [task, setTask] = useState(null);
+  const [projectTasks, setProjectTasks] = useState([]);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
@@ -59,7 +62,10 @@ const TaskView = () => {
   useEffect(() => {
     fetchTask();
     fetchComments();
-  }, [taskId]);
+    if (projectId) {
+      fetchProjectTasks();
+    }
+  }, [taskId, projectId]);
 
   const fetchTask = async () => {
     try {
@@ -89,6 +95,15 @@ const TaskView = () => {
       setComments(response.data.data);
     } catch (error) {
       console.error('Failed to load comments');
+    }
+  };
+
+  const fetchProjectTasks = async () => {
+    try {
+      const response = await taskAPI.getAll(projectId);
+      setProjectTasks(response.data.data);
+    } catch (error) {
+      console.error('Failed to load project tasks');
     }
   };
 
@@ -421,6 +436,14 @@ const TaskView = () => {
               </Box>
             </Box>
           </Paper>
+
+          <Box sx={{ mt: 2 }}>
+            <Subtasks task={task} onUpdate={fetchTask} />
+          </Box>
+
+          <Box sx={{ mt: 2 }}>
+            <TaskDependencies task={task} projectTasks={projectTasks} onUpdate={fetchTask} />
+          </Box>
         </Grid>
       </Grid>
 

@@ -32,6 +32,8 @@ import {
   Delete,
   Archive,
   FilterList,
+  Link as LinkIcon,
+  Checklist,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { projectAPI, taskAPI } from '../services/api';
@@ -383,6 +385,24 @@ const ProjectView = () => {
                           {task.tags?.map((tag, idx) => (
                             <Chip key={idx} label={tag} size="small" variant="outlined" />
                           ))}
+                          {task.dependencies && task.dependencies.length > 0 && (
+                            <Chip
+                              icon={<LinkIcon fontSize="small" />}
+                              label={`${task.dependencies.length} dep`}
+                              size="small"
+                              color="info"
+                              variant="outlined"
+                            />
+                          )}
+                          {task.subtasks && task.subtasks.length > 0 && (
+                            <Chip
+                              icon={<Checklist fontSize="small" />}
+                              label={`${task.subtasks.filter(st => st.status === 'Done').length}/${task.subtasks.length}`}
+                              size="small"
+                              color="primary"
+                              variant="outlined"
+                            />
+                          )}
                         </Box>
                         {task.assignees && task.assignees.length > 0 && (
                           <AvatarGroup max={3}>
