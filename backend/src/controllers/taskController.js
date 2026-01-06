@@ -78,11 +78,6 @@ exports.getTask = async (req, res, next) => {
         match: { isDeleted: false },
         populate: { path: 'user', select: 'name email profilePicture' },
         options: { sort: { createdAt: -1 } },
-      })
-      .populate({
-        path: 'attachments',
-        match: { isDeleted: false },
-        populate: { path: 'uploadedBy', select: 'name email profilePicture' },
       });
 
     if (!task) {
