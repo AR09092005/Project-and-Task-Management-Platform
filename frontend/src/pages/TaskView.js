@@ -133,9 +133,23 @@ const TaskView = () => {
   const handleUpdateTask = async () => {
     try {
       const updateData = { ...editTaskData };
-      if (updateData.estimatedHours) {
+
+      // Remove empty fields to avoid validation errors
+      if (!updateData.dueDate) {
+        delete updateData.dueDate;
+      }
+      if (!updateData.estimatedHours) {
+        delete updateData.estimatedHours;
+      } else {
         updateData.estimatedHours = parseFloat(updateData.estimatedHours);
       }
+      if (!updateData.description) {
+        delete updateData.description;
+      }
+      if (updateData.tags && updateData.tags.length === 0) {
+        delete updateData.tags;
+      }
+
       await taskAPI.update(taskId, updateData);
       setOpenEditDialog(false);
       fetchTask();
