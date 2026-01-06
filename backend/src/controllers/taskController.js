@@ -86,6 +86,9 @@ exports.getTask = async (req, res, next) => {
 
     // Check if user has access to task's project
     const project = await Project.findById(task.project);
+    if (!project) {
+      return next(new ErrorResponse('Project not found', 404));
+    }
     if (
       project.owner.toString() !== req.user.id &&
       !project.isMember(req.user.id)
@@ -168,6 +171,9 @@ exports.updateTask = async (req, res, next) => {
 
     // Check if user has access to task's project
     const project = await Project.findById(task.project);
+    if (!project) {
+      return next(new ErrorResponse('Project not found', 404));
+    }
     if (!project.hasPermission(req.user.id, 'Member')) {
       return next(new ErrorResponse('Not authorized to update this task', 403));
     }
@@ -229,6 +235,9 @@ exports.deleteTask = async (req, res, next) => {
 
     // Check if user has access to task's project
     const project = await Project.findById(task.project);
+    if (!project) {
+      return next(new ErrorResponse('Project not found', 404));
+    }
     if (!project.hasPermission(req.user.id, 'Admin')) {
       return next(new ErrorResponse('Not authorized to delete this task', 403));
     }
@@ -259,6 +268,9 @@ exports.addDependency = async (req, res, next) => {
 
     // Check if user has access to task's project
     const project = await Project.findById(task.project);
+    if (!project) {
+      return next(new ErrorResponse('Project not found', 404));
+    }
     if (!project.hasPermission(req.user.id, 'Member')) {
       return next(new ErrorResponse('Not authorized to update this task', 403));
     }
@@ -301,6 +313,9 @@ exports.removeDependency = async (req, res, next) => {
 
     // Check if user has access to task's project
     const project = await Project.findById(task.project);
+    if (!project) {
+      return next(new ErrorResponse('Project not found', 404));
+    }
     if (!project.hasPermission(req.user.id, 'Member')) {
       return next(new ErrorResponse('Not authorized to update this task', 403));
     }
@@ -329,6 +344,9 @@ exports.completeTask = async (req, res, next) => {
 
     // Check if user has access to task's project
     const project = await Project.findById(task.project);
+    if (!project) {
+      return next(new ErrorResponse('Project not found', 404));
+    }
     if (!project.hasPermission(req.user.id, 'Member')) {
       return next(new ErrorResponse('Not authorized to update this task', 403));
     }
@@ -381,6 +399,9 @@ exports.updateTaskPosition = async (req, res, next) => {
 
     // Check if user has access to task's project
     const project = await Project.findById(task.project);
+    if (!project) {
+      return next(new ErrorResponse('Project not found', 404));
+    }
     if (!project.hasPermission(req.user.id, 'Member')) {
       return next(new ErrorResponse('Not authorized to update this task', 403));
     }

@@ -56,6 +56,7 @@ export const SocketProvider = ({ children }) => {
         setConnected(false);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const joinRoom = (roomId) => {
