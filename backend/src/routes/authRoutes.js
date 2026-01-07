@@ -24,10 +24,10 @@ const {
 const { authLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
 
 // Public routes
-router.post('/register', authLimiter, registerValidation, validate, register);
-router.post('/login', authLimiter, loginValidation, validate, login);
+router.post('/register', registerValidation, validate, register);
+router.post('/login', loginValidation, validate, login);
 router.get('/verify-email/:token', verifyEmail);
-router.post('/forgot-password', passwordResetLimiter, emailValidation, validate, forgotPassword);
+router.post('/forgot-password', emailValidation, validate, forgotPassword);
 router.post('/reset-password/:token', passwordValidation, validate, resetPassword);
 
 // OAuth routes - Google
