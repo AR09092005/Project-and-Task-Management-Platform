@@ -11,7 +11,11 @@ import {
   Alert,
   Divider,
 } from '@mui/material';
-import { Google as GoogleIcon, GitHub as GitHubIcon } from '@mui/icons-material';
+import {
+  Google as GoogleIcon,
+  GitHub as GitHubIcon,
+  LockOutlined as LockIcon,
+} from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -45,30 +49,52 @@ const Login = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography component="h1" variant="h4" align="center" gutterBottom>
-            Task Management
-          </Typography>
-          <Typography variant="h6" align="center" color="text.secondary" gutterBottom>
-            Sign in to your account
-          </Typography>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        py: 4,
+      }}
+    >
+      <Container component="main" maxWidth="sm">
+        <Paper
+          elevation={6}
+          sx={{
+            p: { xs: 3, sm: 5 },
+            width: '100%',
+            borderRadius: 3,
+          }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                p: 2,
+                borderRadius: '50%',
+                bgcolor: 'primary.main',
+                color: 'white',
+                mb: 2,
+              }}
+            >
+              <LockIcon sx={{ fontSize: 40 }} />
+            </Box>
+            <Typography component="h1" variant="h3" fontWeight="bold" gutterBottom>
+              Welcome Back
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Sign in to continue to Task Management
+            </Typography>
+          </Box>
 
           {error && (
-            <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
               {error}
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box component="form" onSubmit={handleSubmit}>
             <TextField
               margin="normal"
               required
@@ -80,6 +106,7 @@ const Login = () => {
               autoFocus
               value={formData.email}
               onChange={handleChange}
+              sx={{ mb: 2 }}
             />
             <TextField
               margin="normal"
@@ -92,55 +119,96 @@ const Login = () => {
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
+              sx={{ mb: 1 }}
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
 
-            <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <Link component={RouterLink} to="/forgot-password" variant="body2">
+            <Box sx={{ textAlign: 'right', mb: 3 }}>
+              <Link
+                component={RouterLink}
+                to="/forgot-password"
+                variant="body2"
+                sx={{
+                  color: 'primary.main',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+              >
                 Forgot password?
               </Link>
             </Box>
 
-            <Divider sx={{ my: 2 }}>OR</Divider>
-
             <Button
+              type="submit"
               fullWidth
-              variant="outlined"
-              startIcon={<GoogleIcon />}
-              onClick={() => handleOAuthLogin('google')}
-              sx={{ mb: 1 }}
+              variant="contained"
+              size="large"
+              disabled={loading}
+              sx={{
+                py: 1.5,
+                mb: 3,
+                fontSize: '1rem',
+              }}
             >
-              Continue with Google
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<GitHubIcon />}
-              onClick={() => handleOAuthLogin('github')}
-            >
-              Continue with GitHub
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
 
-            <Box sx={{ mt: 3, textAlign: 'center' }}>
-              <Typography variant="body2">
+            <Divider sx={{ my: 3 }}>
+              <Typography variant="body2" color="text.secondary">
+                OR CONTINUE WITH
+              </Typography>
+            </Divider>
+
+            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<GoogleIcon />}
+                onClick={() => handleOAuthLogin('google')}
+                sx={{
+                  py: 1.2,
+                  borderWidth: 2,
+                  '&:hover': { borderWidth: 2 },
+                }}
+              >
+                Google
+              </Button>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<GitHubIcon />}
+                onClick={() => handleOAuthLogin('github')}
+                sx={{
+                  py: 1.2,
+                  borderWidth: 2,
+                  '&:hover': { borderWidth: 2 },
+                }}
+              >
+                GitHub
+              </Button>
+            </Box>
+
+            <Box sx={{ textAlign: 'center', pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="body2" color="text.secondary">
                 Don't have an account?{' '}
-                <Link component={RouterLink} to="/register">
-                  Sign up
+                <Link
+                  component={RouterLink}
+                  to="/register"
+                  sx={{
+                    color: 'primary.main',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  Sign up for free
                 </Link>
               </Typography>
             </Box>
           </Box>
         </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

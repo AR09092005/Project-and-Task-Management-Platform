@@ -10,6 +10,7 @@ import {
   Link,
   Alert,
 } from '@mui/material';
+import { PersonAdd as PersonAddIcon } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
@@ -61,30 +62,52 @@ const Register = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography component="h1" variant="h4" align="center" gutterBottom>
-            Create Account
-          </Typography>
-          <Typography variant="body2" align="center" color="text.secondary" gutterBottom>
-            Sign up to get started
-          </Typography>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        py: 4,
+      }}
+    >
+      <Container component="main" maxWidth="sm">
+        <Paper
+          elevation={6}
+          sx={{
+            p: { xs: 3, sm: 5 },
+            width: '100%',
+            borderRadius: 3,
+          }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                p: 2,
+                borderRadius: '50%',
+                bgcolor: 'secondary.main',
+                color: 'white',
+                mb: 2,
+              }}
+            >
+              <PersonAddIcon sx={{ fontSize: 40 }} />
+            </Box>
+            <Typography component="h1" variant="h3" fontWeight="bold" gutterBottom>
+              Create Account
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Join Task Management today
+            </Typography>
+          </Box>
 
           {error && (
-            <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
               {error}
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box component="form" onSubmit={handleSubmit}>
             <TextField
               margin="normal"
               required
@@ -96,6 +119,7 @@ const Register = () => {
               autoFocus
               value={formData.name}
               onChange={handleChange}
+              sx={{ mb: 2 }}
             />
             <TextField
               margin="normal"
@@ -107,6 +131,7 @@ const Register = () => {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
+              sx={{ mb: 2 }}
             />
             <TextField
               margin="normal"
@@ -119,6 +144,7 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               helperText="Min 8 chars, 1 uppercase, 1 lowercase, 1 number"
+              sx={{ mb: 2 }}
             />
             <TextField
               margin="normal"
@@ -130,29 +156,44 @@ const Register = () => {
               id="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              sx={{ mb: 3 }}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              size="large"
               disabled={loading}
+              sx={{
+                py: 1.5,
+                mb: 3,
+                fontSize: '1rem',
+              }}
             >
-              {loading ? 'Creating account...' : 'Sign Up'}
+              {loading ? 'Creating account...' : 'Create Account'}
             </Button>
 
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <Typography variant="body2">
+            <Box sx={{ textAlign: 'center', pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="body2" color="text.secondary">
                 Already have an account?{' '}
-                <Link component={RouterLink} to="/login">
+                <Link
+                  component={RouterLink}
+                  to="/login"
+                  sx={{
+                    color: 'primary.main',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
                   Sign in
                 </Link>
               </Typography>
             </Box>
           </Box>
         </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 
