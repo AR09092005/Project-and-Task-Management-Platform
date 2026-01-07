@@ -52,8 +52,9 @@ function AcceptInvite() {
     try {
       const response = await inviteAPI.accept(token);
       enqueueSnackbar('Invitation accepted successfully!', { variant: 'success' });
-      // Navigate to the project
-      navigate(`/projects/${response.data.data._id}`);
+      // Navigate to dashboard to see the new project
+      // Using window.location for a full page reload to ensure fresh data
+      window.location.href = '/dashboard';
     } catch (err) {
       enqueueSnackbar(
         err.response?.data?.message || 'Failed to accept invitation',

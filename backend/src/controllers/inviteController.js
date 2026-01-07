@@ -136,12 +136,22 @@ exports.acceptInvite = async (req, res, next) => {
 
     // Add user to project
     const project = await Project.findById(invite.project);
+
+    if (!project) {
+      return next(new ErrorResponse('Project not found', 404));
+    }
+
     await project.addMember(req.user.id, invite.role);
+
+    // Fetch the updated project with populated fields
+    const updatedProject = await Project.findById(project._id)
+      .populate('owner', 'name email profilePicture')
+      .populate('members.user', 'name email profilePicture');
 
     res.status(200).json({
       success: true,
       message: 'Invite accepted successfully',
-      data: project,
+      data: updatedProject,
     });
   } catch (error) {
     if (error.message.includes('Invite has')) {
