@@ -8,7 +8,7 @@ exports.generateToken = (id) => {
 };
 
 // Send token response
-exports.sendTokenResponse = (user, statusCode, res) => {
+exports.sendTokenResponse = (user, statusCode, res, redirectUrl = null) => {
   // Create token
   const token = this.generateToken(user._id);
 
@@ -17,7 +17,7 @@ exports.sendTokenResponse = (user, statusCode, res) => {
     expires: new Date(Date.now() + cookieExpire * 24 * 60 * 60 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax', // Changed from 'strict' to 'lax' for OAuth redirects
   };
 
   // Remove sensitive data
@@ -28,7 +28,16 @@ exports.sendTokenResponse = (user, statusCode, res) => {
   delete userObj.loginAttempts;
   delete userObj.lockUntil;
 
-  res.status(statusCode).cookie('jwt', token, options).json({
+  // Set the cookie
+  res.status(statusCode).cookie('jwt', token, options);
+
+  // If redirect URL is provided, redirect instead of sending JSON (for OAuth)
+  if (redirectUrl) {
+    return res.redirect(redirectUrl);
+  }
+
+  // Otherwise send JSON response (for regular login)
+  res.json({
     success: true,
     token,
     user: userObj,

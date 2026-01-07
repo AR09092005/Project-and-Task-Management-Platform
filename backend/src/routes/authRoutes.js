@@ -33,30 +33,33 @@ router.post('/reset-password/:token', passwordValidation, validate, resetPasswor
 // OAuth routes - Google
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login` }),
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login?error=auth_failed` }),
   (req, res) => {
     const { sendTokenResponse } = require('../utils/jwt');
-    sendTokenResponse(req.user, 200, res);
+    // Set cookie and redirect to dashboard
+    sendTokenResponse(req.user, 200, res, `${process.env.CLIENT_URL}/dashboard`);
   }
 );
 
 // OAuth routes - GitHub
 router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
 router.get('/github/callback',
-  passport.authenticate('github', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login` }),
+  passport.authenticate('github', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login?error=auth_failed` }),
   (req, res) => {
     const { sendTokenResponse } = require('../utils/jwt');
-    sendTokenResponse(req.user, 200, res);
+    // Set cookie and redirect to dashboard
+    sendTokenResponse(req.user, 200, res, `${process.env.CLIENT_URL}/dashboard`);
   }
 );
 
 // OAuth routes - Microsoft
 router.get('/microsoft', passport.authenticate('microsoft', { scope: ['user.read'] }));
 router.get('/microsoft/callback',
-  passport.authenticate('microsoft', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login` }),
+  passport.authenticate('microsoft', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login?error=auth_failed` }),
   (req, res) => {
     const { sendTokenResponse } = require('../utils/jwt');
-    sendTokenResponse(req.user, 200, res);
+    // Set cookie and redirect to dashboard
+    sendTokenResponse(req.user, 200, res, `${process.env.CLIENT_URL}/dashboard`);
   }
 );
 
