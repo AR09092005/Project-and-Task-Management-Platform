@@ -80,8 +80,20 @@ const TeamMembers = ({ project, onUpdate }) => {
 
   const handleSendInvite = async () => {
     try {
-      await inviteAPI.create(project._id, inviteData);
-      enqueueSnackbar('Invitation sent successfully', { variant: 'success' });
+      const response = await inviteAPI.create(project._id, inviteData);
+
+      // Check if email was actually sent
+      if (response.data.emailSent) {
+        enqueueSnackbar('Invitation sent successfully via email', { variant: 'success' });
+      } else if (response.data.emailError) {
+        enqueueSnackbar(
+          response.data.message || 'Invite created but email failed to send',
+          { variant: 'warning' }
+        );
+      } else {
+        enqueueSnackbar('Invitation created successfully', { variant: 'success' });
+      }
+
       setOpenInviteDialog(false);
       setInviteData({ email: '', role: 'Member' });
     } catch (error) {

@@ -52,15 +52,19 @@ exports.createInvite = async (req, res, next) => {
     const inviteUrl = `${process.env.CLIENT_URL}/invites/${invite.token}`;
 
     // Send invite email
+    let emailSent = false;
+    let emailError = null;
     try {
       await sendEmail({
         email: invite.email,
         subject: `Project Invitation - ${project.name}`,
         html: emailTemplates.projectInvite(req.user.name, project.name, inviteUrl),
       });
+      emailSent = true;
     } catch (error) {
-      console.error('Failed to send invite email:', error);
-      // Continue even if email fails
+      console.error('Failed to send invite email:', error.message);
+      emailError = error.message;
+      // Continue even if email fails - user can still accept invite through notification or direct link
     }
 
     // If user exists, create in-app notification
@@ -79,6 +83,13 @@ exports.createInvite = async (req, res, next) => {
     res.status(201).json({
       success: true,
       data: invite,
+      emailSent,
+      ...(emailError && { emailError }),
+      message: emailSent
+        ? 'Invite created and email sent successfully'
+        : existingUser
+          ? 'Invite created with in-app notification (email failed to send)'
+          : `Invite created but email failed to send: ${emailError}`,
     });
   } catch (error) {
     next(error);
