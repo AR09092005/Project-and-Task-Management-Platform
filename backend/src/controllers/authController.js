@@ -115,6 +115,10 @@ exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
 
+    if (!user) {
+      return next(new ErrorResponse('User not found', 404));
+    }
+
     res.status(200).json({
       success: true,
       data: user,
@@ -255,6 +259,10 @@ exports.updateProfile = async (req, res, next) => {
       runValidators: true,
     });
 
+    if (!user) {
+      return next(new ErrorResponse('User not found', 404));
+    }
+
     res.status(200).json({
       success: true,
       data: user,
@@ -272,6 +280,14 @@ exports.updatePassword = async (req, res, next) => {
     const { currentPassword, newPassword } = req.body;
 
     const user = await User.findById(req.user.id).select('+passwordHash');
+
+    if (!user) {
+      return next(new ErrorResponse('User not found', 404));
+    }
+
+    if (!user.passwordHash) {
+      return next(new ErrorResponse('Cannot update password for OAuth accounts', 400));
+    }
 
     // Check current password
     const isMatch = await user.comparePassword(currentPassword);
@@ -295,6 +311,10 @@ exports.updatePassword = async (req, res, next) => {
 exports.updateNotificationPreferences = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return next(new ErrorResponse('User not found', 404));
+    }
 
     if (req.body.email) {
       user.notificationPreferences.email = {

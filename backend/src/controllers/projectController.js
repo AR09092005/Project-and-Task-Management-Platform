@@ -11,9 +11,13 @@ exports.getProjects = async (req, res, next) => {
 
     // Build query
     const query = {
-      $or: [
-        { owner: req.user.id },
-        { 'members.user': req.user.id }
+      $and: [
+        {
+          $or: [
+            { owner: req.user.id },
+            { 'members.user': req.user.id }
+          ]
+        }
       ],
       isDeleted: false,
     };
@@ -27,10 +31,12 @@ exports.getProjects = async (req, res, next) => {
     }
 
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-      ];
+      query.$and.push({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+        ]
+      });
     }
 
     const projects = await Project.find(query)
@@ -53,7 +59,7 @@ exports.getProjects = async (req, res, next) => {
 // @access  Private
 exports.getProject = async (req, res, next) => {
   try {
-    const project = await Project.findById(req.params.id)
+    const project = await Project.findOne({ _id: req.params.id, isDeleted: false })
       .populate('owner', 'name email profilePicture')
       .populate('members.user', 'name email profilePicture');
 
@@ -62,8 +68,11 @@ exports.getProject = async (req, res, next) => {
     }
 
     // Check if user is a member or owner
+    // Handle both populated and unpopulated owner field
+    const ownerId = project.owner?._id ? project.owner._id.toString() : project.owner?.toString();
+
     if (
-      project.owner._id.toString() !== req.user.id &&
+      ownerId !== req.user.id &&
       !project.isMember(req.user.id)
     ) {
       return next(new ErrorResponse('Not authorized to access this project', 403));
