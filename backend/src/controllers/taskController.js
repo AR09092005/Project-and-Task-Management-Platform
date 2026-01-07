@@ -29,7 +29,7 @@ exports.getTasks = async (req, res, next) => {
     if (status) filters.status = status;
     if (priority) filters.priority = priority;
     if (assignee) filters.assignee = assignee;
-    if (tags) filters.tags = tags.split(',');
+    if (tags) filters.tags = Array.isArray(tags) ? tags : tags.split(',');
     if (dueDateFrom) filters.dueDateFrom = dueDateFrom;
     if (dueDateTo) filters.dueDateTo = dueDateTo;
 
@@ -62,7 +62,7 @@ exports.getTasks = async (req, res, next) => {
 // @access  Private
 exports.getTask = async (req, res, next) => {
   try {
-    const task = await Task.findById(req.params.id)
+    const task = await Task.findOne({ _id: req.params.id, isDeleted: false })
       .populate('assignees', 'name email profilePicture')
       .populate('createdBy', 'name email profilePicture')
       .populate('completedBy', 'name email profilePicture')
@@ -179,7 +179,7 @@ exports.updateTask = async (req, res, next) => {
     }
 
     // Track if assignees changed for notifications
-    const oldAssignees = task.assignees.map((a) => a.toString());
+    const oldAssignees = (task.assignees || []).map((a) => a.toString());
     const newAssignees = req.body.assignees || oldAssignees;
     const addedAssignees = newAssignees.filter((a) => !oldAssignees.includes(a));
 

@@ -83,7 +83,7 @@ exports.createComment = async (req, res, next) => {
           user: mentionedUserId,
           type: 'comment_mention',
           title: 'Mentioned in Comment',
-          content: `${req.user.name} mentioned you in a comment`,
+          content: `${req.user.name || 'Someone'} mentioned you in a comment`,
           relatedTask: taskId,
           relatedProject: task.project,
           relatedComment: comment._id,

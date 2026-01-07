@@ -160,6 +160,9 @@ taskSchema.methods.checkCircularDependency = async function (taskId, visited = n
   }
 
   for (const dep of dependentTask.dependencies) {
+    // Skip if task is not populated or is null
+    if (!dep.task || !dep.task._id) continue;
+
     if (dep.task._id.toString() === this._id.toString()) {
       return true;
     }
