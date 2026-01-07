@@ -69,16 +69,6 @@ exports.login = async (req, res, next) => {
       return next(new ErrorResponse('Account is deactivated', 401));
     }
 
-    // Check if account is locked
-    if (user.isLocked) {
-      return next(
-        new ErrorResponse(
-          'Account is temporarily locked due to multiple failed login attempts. Please try again later.',
-          401
-        )
-      );
-    }
-
     // Check if user has a password (OAuth users might not)
     if (!user.passwordHash) {
       return next(
@@ -90,14 +80,7 @@ exports.login = async (req, res, next) => {
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
-      // Increment login attempts
-      await user.incLoginAttempts();
       return next(new ErrorResponse('Invalid credentials', 401));
-    }
-
-    // Reset login attempts on successful login
-    if (user.loginAttempts > 0 || user.lockUntil) {
-      await user.resetLoginAttempts();
     }
 
     // Update last login

@@ -29,18 +29,7 @@ exports.createInvite = async (req, res, next) => {
       return next(new ErrorResponse('User is already a member of this project', 400));
     }
 
-    // Check if there's already a pending invite
-    const existingInvite = await Invite.findOne({
-      project: projectId,
-      email: email.toLowerCase(),
-      status: 'pending',
-    });
-
-    if (existingInvite) {
-      return next(new ErrorResponse('An invite has already been sent to this email', 400));
-    }
-
-    // Create invite
+    // Create invite (allow multiple invites to same email)
     const invite = await Invite.create({
       project: projectId,
       email: email.toLowerCase(),

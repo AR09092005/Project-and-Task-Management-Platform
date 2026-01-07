@@ -49,11 +49,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['google', 'microsoft', 'github'],
     }],
-    loginAttempts: {
-      type: Number,
-      default: 0,
-    },
-    lockUntil: Date,
     lastLogin: Date,
     isActive: {
       type: Boolean,
@@ -99,11 +94,6 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1 });
 userSchema.index({ isDeleted: 1, isActive: 1 });
 
-// Virtual for checking if account is locked
-userSchema.virtual('isLocked').get(function () {
-  return !!(this.lockUntil && this.lockUntil > Date.now());
-});
-
 // Pre-save middleware to hash password
 userSchema.pre('save', async function (next) {
   // Only hash the password if it has been modified (or is new)
@@ -123,37 +113,6 @@ userSchema.pre('save', async function (next) {
 // Method to compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.passwordHash);
-};
-
-// Method to increment login attempts
-userSchema.methods.incLoginAttempts = function () {
-  // If we have a previous lock that has expired, restart at 1
-  if (this.lockUntil && this.lockUntil < Date.now()) {
-    return this.updateOne({
-      $set: { loginAttempts: 1 },
-      $unset: { lockUntil: 1 },
-    });
-  }
-
-  const updates = { $inc: { loginAttempts: 1 } };
-  const maxAttempts = parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 5;
-
-  // Lock the account if we've reached max attempts
-  if (this.loginAttempts + 1 >= maxAttempts && !this.isLocked) {
-    updates.$set = {
-      lockUntil: Date.now() + (parseInt(process.env.LOCKOUT_DURATION) || 1800000)
-    };
-  }
-
-  return this.updateOne(updates);
-};
-
-// Method to reset login attempts
-userSchema.methods.resetLoginAttempts = function () {
-  return this.updateOne({
-    $set: { loginAttempts: 0 },
-    $unset: { lockUntil: 1 },
-  });
 };
 
 // Method to soft delete user
