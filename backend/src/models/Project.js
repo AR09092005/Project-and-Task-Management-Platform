@@ -86,9 +86,11 @@ projectSchema.virtual('tasks', {
 
 // Method to add member
 projectSchema.methods.addMember = function (userId, role = 'Member') {
-  const existingMember = this.members.find(
-    (m) => m.user.toString() === userId.toString()
-  );
+  const existingMember = this.members.find((m) => {
+    // Handle both populated and unpopulated user field
+    const memberId = m.user._id ? m.user._id.toString() : m.user.toString();
+    return memberId === userId.toString();
+  });
 
   if (existingMember) {
     throw new Error('User is already a member of this project');
@@ -100,17 +102,21 @@ projectSchema.methods.addMember = function (userId, role = 'Member') {
 
 // Method to remove member
 projectSchema.methods.removeMember = function (userId) {
-  this.members = this.members.filter(
-    (m) => m.user.toString() !== userId.toString()
-  );
+  this.members = this.members.filter((m) => {
+    // Handle both populated and unpopulated user field
+    const memberId = m.user._id ? m.user._id.toString() : m.user.toString();
+    return memberId !== userId.toString();
+  });
   return this.save();
 };
 
 // Method to update member role
 projectSchema.methods.updateMemberRole = function (userId, newRole) {
-  const member = this.members.find(
-    (m) => m.user.toString() === userId.toString()
-  );
+  const member = this.members.find((m) => {
+    // Handle both populated and unpopulated user field
+    const memberId = m.user._id ? m.user._id.toString() : m.user.toString();
+    return memberId === userId.toString();
+  });
 
   if (!member) {
     throw new Error('User is not a member of this project');
@@ -122,14 +128,20 @@ projectSchema.methods.updateMemberRole = function (userId, newRole) {
 
 // Method to check if user is a member
 projectSchema.methods.isMember = function (userId) {
-  return this.members.some((m) => m.user.toString() === userId.toString());
+  return this.members.some((m) => {
+    // Handle both populated and unpopulated user field
+    const memberId = m.user._id ? m.user._id.toString() : m.user.toString();
+    return memberId === userId.toString();
+  });
 };
 
 // Method to get member role
 projectSchema.methods.getMemberRole = function (userId) {
-  const member = this.members.find(
-    (m) => m.user.toString() === userId.toString()
-  );
+  const member = this.members.find((m) => {
+    // Handle both populated and unpopulated user field
+    const memberId = m.user._id ? m.user._id.toString() : m.user.toString();
+    return memberId === userId.toString();
+  });
   return member ? member.role : null;
 };
 
