@@ -12,6 +12,7 @@ import TaskView from './pages/TaskView';
 import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import AcceptInvite from './pages/AcceptInvite';
 
 // Components
 import PrivateRoute from './components/PrivateRoute';
@@ -40,6 +41,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/invites/:token" element={<AcceptInvite />} />
 
       {/* Private routes */}
       <Route
