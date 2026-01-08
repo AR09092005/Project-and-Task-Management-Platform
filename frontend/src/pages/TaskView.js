@@ -70,20 +70,29 @@ const TaskView = () => {
   const fetchTask = async () => {
     try {
       const response = await taskAPI.getById(taskId);
-      setTask(response.data.data);
+      const taskData = response?.data?.data;
+
+      if (!taskData) {
+        enqueueSnackbar('Task data not found', { variant: 'error' });
+        setTask(null);
+        return;
+      }
+
+      setTask(taskData);
       setEditTaskData({
-        title: response.data.data.title,
-        description: response.data.data.description || '',
-        priority: response.data.data.priority,
-        status: response.data.data.status,
-        dueDate: response.data.data.dueDate
-          ? new Date(response.data.data.dueDate).toISOString().split('T')[0]
+        title: taskData.title,
+        description: taskData.description || '',
+        priority: taskData.priority,
+        status: taskData.status,
+        dueDate: taskData.dueDate
+          ? new Date(taskData.dueDate).toISOString().split('T')[0]
           : '',
-        tags: response.data.data.tags || [],
-        estimatedHours: response.data.data.estimatedHours || '',
+        tags: taskData.tags || [],
+        estimatedHours: taskData.estimatedHours || '',
       });
     } catch (error) {
       enqueueSnackbar('Failed to load task', { variant: 'error' });
+      setTask(null);
     } finally {
       setLoading(false);
     }
@@ -92,18 +101,20 @@ const TaskView = () => {
   const fetchComments = async () => {
     try {
       const response = await commentAPI.getAll(taskId);
-      setComments(response.data.data);
+      setComments(response?.data?.data || []);
     } catch (error) {
       console.error('Failed to load comments');
+      setComments([]);
     }
   };
 
   const fetchProjectTasks = async () => {
     try {
       const response = await taskAPI.getAll(projectId);
-      setProjectTasks(response.data.data);
+      setProjectTasks(response?.data?.data || []);
     } catch (error) {
       console.error('Failed to load project tasks');
+      setProjectTasks([]);
     }
   };
 
@@ -550,8 +561,14 @@ const TaskView = () => {
                 label="Estimated Hours"
                 type="number"
                 fullWidth
+                inputProps={{ min: 0, step: 0.5 }}
                 value={editTaskData.estimatedHours}
-                onChange={(e) => setEditTaskData({ ...editTaskData, estimatedHours: e.target.value })}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  if (e.target.value === '' || (value >= 0 && !isNaN(value))) {
+                    setEditTaskData({ ...editTaskData, estimatedHours: e.target.value });
+                  }
+                }}
               />
             </Grid>
           </Grid>

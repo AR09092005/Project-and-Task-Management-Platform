@@ -53,12 +53,14 @@ const Notifications = () => {
         );
         fetchUnreadCount();
       });
+    }
 
-      return () => {
+    return () => {
+      if (socket) {
         socket.off('new_notification');
         socket.off('notification_read');
-      };
-    }
+      }
+    };
   }, [socket]);
 
   useEffect(() => {

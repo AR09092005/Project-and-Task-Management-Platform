@@ -44,9 +44,10 @@ const Dashboard = () => {
   const fetchProjects = async () => {
     try {
       const response = await projectAPI.getAll();
-      setProjects(response.data.data);
+      setProjects(response?.data?.data || []);
     } catch (error) {
       enqueueSnackbar('Failed to load projects', { variant: 'error' });
+      setProjects([]);
     } finally {
       setLoading(false);
     }

@@ -55,6 +55,8 @@ const TeamMembers = ({ project, onUpdate }) => {
   };
 
   const handleChangeRole = async (newRole) => {
+    if (!selectedMember?.user?._id) return;
+
     try {
       await projectAPI.updateMemberRole(project._id, selectedMember.user._id, newRole);
       enqueueSnackbar('Member role updated successfully', { variant: 'success' });
@@ -66,6 +68,8 @@ const TeamMembers = ({ project, onUpdate }) => {
   };
 
   const handleRemoveMember = async () => {
+    if (!selectedMember?.user?._id || !selectedMember?.user?.name) return;
+
     if (window.confirm(`Remove ${selectedMember.user.name} from the project?`)) {
       try {
         await projectAPI.removeMember(project._id, selectedMember.user._id);
@@ -115,7 +119,10 @@ const TeamMembers = ({ project, onUpdate }) => {
   };
 
   const canManageMembers = () => {
-    const currentMember = project.members.find((m) => m.user._id === user._id);
+    if (!project?.members || !Array.isArray(project.members) || !user?._id) {
+      return false;
+    }
+    const currentMember = project.members.find((m) => m?.user?._id === user._id);
     return currentMember && ['Owner', 'Admin'].includes(currentMember.role);
   };
 
@@ -137,34 +144,38 @@ const TeamMembers = ({ project, onUpdate }) => {
           </Box>
 
           <List>
-            {project.members.map((member) => (
-              <ListItem
-                key={member.user._id}
-                secondaryAction={
-                  canManageMembers() &&
-                  member.role !== 'Owner' &&
-                  member.user._id !== user._id && (
-                    <IconButton
-                      edge="end"
-                      onClick={(e) => handleMemberMenu(e, member)}
-                    >
-                      <MoreVert />
-                    </IconButton>
-                  )
-                }
-              >
-                <ListItemAvatar>
-                  <Avatar src={member.user.profilePicture}>
-                    {member.user.name.charAt(0).toUpperCase()}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={member.user.name}
-                  secondary={member.user.email}
-                />
-                <Chip label={member.role} color={getRoleColor(member.role)} size="small" />
-              </ListItem>
-            ))}
+            {(project?.members || []).map((member) => {
+              if (!member?.user) return null;
+
+              return (
+                <ListItem
+                  key={member.user._id}
+                  secondaryAction={
+                    canManageMembers() &&
+                    member.role !== 'Owner' &&
+                    member.user._id !== user._id && (
+                      <IconButton
+                        edge="end"
+                        onClick={(e) => handleMemberMenu(e, member)}
+                      >
+                        <MoreVert />
+                      </IconButton>
+                    )
+                  }
+                >
+                  <ListItemAvatar>
+                    <Avatar src={member.user.profilePicture}>
+                      {member.user.name?.charAt(0)?.toUpperCase() || '?'}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={member.user.name || 'Unknown'}
+                    secondary={member.user.email || ''}
+                  />
+                  <Chip label={member.role} color={getRoleColor(member.role)} size="small" />
+                </ListItem>
+              );
+            })}
           </List>
         </CardContent>
       </Card>

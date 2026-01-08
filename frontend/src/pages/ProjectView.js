@@ -83,15 +83,24 @@ const ProjectView = () => {
   const fetchProject = async () => {
     try {
       const response = await projectAPI.getById(projectId);
-      setProject(response.data.data);
+      const projectData = response?.data?.data;
+
+      if (!projectData) {
+        enqueueSnackbar('Project data not found', { variant: 'error' });
+        setProject(null);
+        return;
+      }
+
+      setProject(projectData);
       setEditProjectData({
-        name: response.data.data.name,
-        description: response.data.data.description || '',
-        workspace: response.data.data.workspace,
-        status: response.data.data.status,
+        name: projectData.name,
+        description: projectData.description || '',
+        workspace: projectData.workspace,
+        status: projectData.status,
       });
     } catch (error) {
       enqueueSnackbar('Failed to load project', { variant: 'error' });
+      setProject(null);
     } finally {
       setLoading(false);
     }
@@ -100,9 +109,10 @@ const ProjectView = () => {
   const fetchTasks = async () => {
     try {
       const response = await taskAPI.getAll(projectId);
-      setTasks(response.data.data);
+      setTasks(response?.data?.data || []);
     } catch (error) {
       enqueueSnackbar('Failed to load tasks', { variant: 'error' });
+      setTasks([]);
     }
   };
 
@@ -414,7 +424,7 @@ const ProjectView = () => {
                           {task.subtasks && task.subtasks.length > 0 && (
                             <Chip
                               icon={<Checklist fontSize="small" />}
-                              label={`${task.subtasks.filter(st => st.status === 'Done').length}/${task.subtasks.length}`}
+                              label={`${task.subtasks.filter(st => st && st.status === 'Done').length}/${task.subtasks.length}`}
                               size="small"
                               color="primary"
                               variant="outlined"
@@ -513,8 +523,14 @@ const ProjectView = () => {
                 label="Estimated Hours"
                 type="number"
                 fullWidth
+                inputProps={{ min: 0, step: 0.5 }}
                 value={newTask.estimatedHours}
-                onChange={(e) => setNewTask({ ...newTask, estimatedHours: e.target.value })}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  if (e.target.value === '' || (value >= 0 && !isNaN(value))) {
+                    setNewTask({ ...newTask, estimatedHours: e.target.value });
+                  }
+                }}
               />
             </Grid>
           </Grid>
