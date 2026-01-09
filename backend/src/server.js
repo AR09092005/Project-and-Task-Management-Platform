@@ -50,8 +50,8 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// Apply rate limiting to all API routes
-app.use('/api/', apiLimiter);
+// Rate limiting disabled per user request
+// app.use('/api/', apiLimiter);
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
