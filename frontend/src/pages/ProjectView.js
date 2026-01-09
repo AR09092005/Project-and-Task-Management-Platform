@@ -38,6 +38,12 @@ import {
 import { useSnackbar } from 'notistack';
 import { projectAPI, taskAPI } from '../services/api';
 import TeamMembers from '../components/TeamMembers';
+import ViewSwitcher from '../components/ViewSwitcher';
+import KanbanBoard from '../components/KanbanBoard';
+import GanttView from '../components/GanttView';
+import CalendarView from '../components/CalendarView';
+import TimelineView from '../components/TimelineView';
+import TableView from '../components/TableView';
 
 const ProjectView = () => {
   const { projectId } = useParams();
@@ -47,6 +53,7 @@ const ProjectView = () => {
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState('list');
   const [openTaskDialog, setOpenTaskDialog] = useState(false);
   const [openEditProjectDialog, setOpenEditProjectDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -353,6 +360,10 @@ const ProjectView = () => {
             </Typography>
           </Box>
 
+          {/* View Switcher */}
+          <ViewSwitcher currentView={currentView} onViewChange={setCurrentView} />
+
+          {/* Render Views Based on Selection */}
           {filteredTasks.length === 0 ? (
             <Card sx={{ textAlign: 'center', py: 6 }}>
               <Typography color="text.secondary">
@@ -370,85 +381,109 @@ const ProjectView = () => {
               )}
             </Card>
           ) : (
-            <Grid container spacing={2}>
-              {filteredTasks.map((task) => (
-                <Grid item xs={12} key={task._id}>
-                  <Card
-                    sx={{ cursor: 'pointer', '&:hover': { boxShadow: 2 } }}
-                    onClick={() => navigate(`/projects/${projectId}/tasks/${task._id}`)}
-                  >
-                    <CardContent>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="h6">{task.title}</Typography>
-                        <Box>
-                          <Chip
-                            label={task.status}
-                            color={getStatusColor(task.status)}
-                            size="small"
-                            sx={{ mr: 1 }}
-                          />
-                          <Chip
-                            label={task.priority}
-                            color={getPriorityColor(task.priority)}
-                            size="small"
-                          />
-                        </Box>
-                      </Box>
-                      {task.description && (
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                          {task.description.substring(0, 150)}
-                          {task.description.length > 150 && '...'}
-                        </Typography>
-                      )}
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                          {task.dueDate && (
-                            <Chip
-                              label={`Due: ${new Date(task.dueDate).toLocaleDateString()}`}
-                              size="small"
-                              variant="outlined"
-                            />
-                          )}
-                          {task.tags?.map((tag, idx) => (
-                            <Chip key={idx} label={tag} size="small" variant="outlined" />
-                          ))}
-                          {task.dependencies && task.dependencies.length > 0 && (
-                            <Chip
-                              icon={<LinkIcon fontSize="small" />}
-                              label={`${task.dependencies.length} dep`}
-                              size="small"
-                              color="info"
-                              variant="outlined"
-                            />
-                          )}
-                          {task.subtasks && task.subtasks.length > 0 && (
-                            <Chip
-                              icon={<Checklist fontSize="small" />}
-                              label={`${task.subtasks.filter(st => st && st.status === 'Done').length}/${task.subtasks.length}`}
-                              size="small"
-                              color="primary"
-                              variant="outlined"
-                            />
-                          )}
-                        </Box>
-                        {task.assignees && task.assignees.length > 0 && (
-                          <AvatarGroup max={3}>
-                            {task.assignees.map((assignee) => (
-                              <Avatar
-                                key={assignee._id}
-                                alt={assignee.name}
-                                src={assignee.profilePicture}
-                                sx={{ width: 24, height: 24 }}
+            <>
+              {currentView === 'list' && (
+                <Grid container spacing={2}>
+                  {filteredTasks.map((task) => (
+                    <Grid item xs={12} key={task._id}>
+                      <Card
+                        sx={{ cursor: 'pointer', '&:hover': { boxShadow: 2 } }}
+                        onClick={() => navigate(`/projects/${projectId}/tasks/${task._id}`)}
+                      >
+                        <CardContent>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant="h6">{task.title}</Typography>
+                            <Box>
+                              <Chip
+                                label={task.status}
+                                color={getStatusColor(task.status)}
+                                size="small"
+                                sx={{ mr: 1 }}
                               />
-                            ))}
-                          </AvatarGroup>
-                        )}
-                      </Box>
-                    </CardContent>
-                  </Card>
+                              <Chip
+                                label={task.priority}
+                                color={getPriorityColor(task.priority)}
+                                size="small"
+                              />
+                            </Box>
+                          </Box>
+                          {task.description && (
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                              {task.description.substring(0, 150)}
+                              {task.description.length > 150 && '...'}
+                            </Typography>
+                          )}
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                              {task.dueDate && (
+                                <Chip
+                                  label={`Due: ${new Date(task.dueDate).toLocaleDateString()}`}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              )}
+                              {task.tags?.map((tag, idx) => (
+                                <Chip key={idx} label={tag} size="small" variant="outlined" />
+                              ))}
+                              {task.dependencies && task.dependencies.length > 0 && (
+                                <Chip
+                                  icon={<LinkIcon fontSize="small" />}
+                                  label={`${task.dependencies.length} dep`}
+                                  size="small"
+                                  color="info"
+                                  variant="outlined"
+                                />
+                              )}
+                              {task.subtasks && task.subtasks.length > 0 && (
+                                <Chip
+                                  icon={<Checklist fontSize="small" />}
+                                  label={`${task.subtasks.filter(st => st && st.status === 'Done').length}/${task.subtasks.length}`}
+                                  size="small"
+                                  color="primary"
+                                  variant="outlined"
+                                />
+                              )}
+                            </Box>
+                            {task.assignees && task.assignees.length > 0 && (
+                              <AvatarGroup max={3}>
+                                {task.assignees.map((assignee) => (
+                                  <Avatar
+                                    key={assignee._id}
+                                    alt={assignee.name}
+                                    src={assignee.profilePicture}
+                                    sx={{ width: 24, height: 24 }}
+                                  />
+                                ))}
+                              </AvatarGroup>
+                            )}
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
                 </Grid>
-              ))}
-            </Grid>
+              )}
+
+              {currentView === 'kanban' && (
+                <KanbanBoard tasks={filteredTasks} projectId={projectId} onTaskUpdate={fetchTasks} />
+              )}
+
+              {currentView === 'gantt' && (
+                <GanttView tasks={filteredTasks} projectId={projectId} onTaskUpdate={fetchTasks} />
+              )}
+
+              {currentView === 'calendar' && (
+                <CalendarView tasks={filteredTasks} projectId={projectId} />
+              )}
+
+              {currentView === 'timeline' && (
+                <TimelineView tasks={filteredTasks} projectId={projectId} />
+              )}
+
+              {currentView === 'table' && (
+                <TableView tasks={filteredTasks} projectId={projectId} />
+              )}
+            </>
           )}
         </Grid>
       </Grid>
