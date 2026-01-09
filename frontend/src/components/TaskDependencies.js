@@ -41,7 +41,7 @@ const TaskDependencies = ({ task, projectTasks, onUpdate }) => {
 
   const dependencies = task.dependencies || [];
   const blockedBy = projectTasks?.filter((t) =>
-    t.dependencies?.some((d) => d.task?._id === task._id && d.dependencyType === 'blocks')
+    t && t.dependencies?.some((d) => d && d.task && (d.task._id === task._id || d.task === task._id) && d.dependencyType === 'blocks')
   ) || [];
 
   const handleAddDependency = async () => {
@@ -77,9 +77,10 @@ const TaskDependencies = ({ task, projectTasks, onUpdate }) => {
   const getAvailableTasks = () => {
     return projectTasks?.filter(
       (t) =>
+        t && t._id &&
         t._id !== task._id &&
-        !dependencies.some((d) => d.task?._id === t._id) &&
-        t.parentTask?.toString() !== task._id.toString()
+        !dependencies.some((d) => d && d.task && (d.task._id === t._id || d.task === t._id)) &&
+        (!t.parentTask || t.parentTask.toString() !== task._id.toString())
     ) || [];
   };
 
@@ -109,40 +110,44 @@ const TaskDependencies = ({ task, projectTasks, onUpdate }) => {
                 This task:
               </Typography>
               <List dense sx={{ p: 0 }}>
-                {dependencies.map((dep) => (
-                  <ListItem
-                    key={dep._id}
-                    sx={{ px: 1 }}
-                    secondaryAction={
-                      <IconButton
-                        edge="end"
-                        size="small"
-                        onClick={() => handleRemoveDependency(dep._id)}
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    }
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2 }}>
-                      {getDependencyIcon(dep.dependencyType)}
-                      <Chip
-                        label={getDependencyLabel(dep.dependencyType)}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </Box>
-                    <ListItemText
-                      primary={dep.task?.title || 'Unknown task'}
-                      secondary={
-                        <Chip
-                          label={dep.task?.status || 'Unknown'}
+                {dependencies.map((dep) => {
+                  if (!dep || !dep._id) return null;
+
+                  return (
+                    <ListItem
+                      key={dep._id}
+                      sx={{ px: 1 }}
+                      secondaryAction={
+                        <IconButton
+                          edge="end"
                           size="small"
-                          color={dep.task?.status === 'Done' ? 'success' : 'default'}
-                        />
+                          onClick={() => handleRemoveDependency(dep._id)}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
                       }
-                    />
-                  </ListItem>
-                ))}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2 }}>
+                        {getDependencyIcon(dep.dependencyType)}
+                        <Chip
+                          label={getDependencyLabel(dep.dependencyType)}
+                          size="small"
+                          variant="outlined"
+                        />
+                      </Box>
+                      <ListItemText
+                        primary={dep.task?.title || 'Unknown task'}
+                        secondary={
+                          <Chip
+                            label={dep.task?.status || 'Unknown'}
+                            size="small"
+                            color={dep.task?.status === 'Done' ? 'success' : 'default'}
+                          />
+                        }
+                      />
+                    </ListItem>
+                  );
+                })}
               </List>
             </Box>
           )}
@@ -154,23 +159,27 @@ const TaskDependencies = ({ task, projectTasks, onUpdate }) => {
                 Blocked by:
               </Typography>
               <List dense sx={{ p: 0 }}>
-                {blockedBy.map((blockingTask) => (
-                  <ListItem key={blockingTask._id} sx={{ px: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2 }}>
-                      <ArrowBack fontSize="small" />
-                    </Box>
-                    <ListItemText
-                      primary={blockingTask.title}
-                      secondary={
-                        <Chip
-                          label={blockingTask.status}
-                          size="small"
-                          color={blockingTask.status === 'Done' ? 'success' : 'warning'}
-                        />
-                      }
-                    />
-                  </ListItem>
-                ))}
+                {blockedBy.map((blockingTask) => {
+                  if (!blockingTask || !blockingTask._id) return null;
+
+                  return (
+                    <ListItem key={blockingTask._id} sx={{ px: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2 }}>
+                        <ArrowBack fontSize="small" />
+                      </Box>
+                      <ListItemText
+                        primary={blockingTask.title}
+                        secondary={
+                          <Chip
+                            label={blockingTask.status}
+                            size="small"
+                            color={blockingTask.status === 'Done' ? 'success' : 'warning'}
+                          />
+                        }
+                      />
+                    </ListItem>
+                  );
+                })}
               </List>
             </Box>
           )}

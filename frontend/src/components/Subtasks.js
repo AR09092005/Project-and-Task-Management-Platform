@@ -36,7 +36,7 @@ const Subtasks = ({ task, onUpdate }) => {
   const [selectedSubtask, setSelectedSubtask] = useState(null);
 
   const subtasks = task.subtasks || [];
-  const completedCount = subtasks.filter((st) => st.status === 'Done').length;
+  const completedCount = subtasks.filter((st) => st && st.status === 'Done').length;
   const progress = subtasks.length > 0 ? (completedCount / subtasks.length) * 100 : 0;
 
   const handleAddSubtask = async () => {
@@ -143,57 +143,61 @@ const Subtasks = ({ task, onUpdate }) => {
           </Typography>
         ) : (
           <List sx={{ p: 0 }}>
-            {subtasks.map((subtask) => (
-              <ListItem
-                key={subtask._id}
-                sx={{
-                  px: 0,
-                  '&:hover': { bgcolor: 'action.hover' },
-                }}
-                secondaryAction={
-                  <IconButton edge="end" size="small" onClick={(e) => handleOpenMenu(e, subtask)}>
-                    <MoreVert fontSize="small" />
-                  </IconButton>
-                }
-              >
-                <ListItemIcon>
-                  <Checkbox
-                    edge="start"
-                    checked={subtask.status === 'Done'}
-                    onChange={() => handleToggleSubtask(subtask)}
-                    icon={<RadioButtonUnchecked />}
-                    checkedIcon={<CheckCircle />}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography
-                        sx={{
-                          textDecoration: subtask.status === 'Done' ? 'line-through' : 'none',
-                          color: subtask.status === 'Done' ? 'text.secondary' : 'text.primary',
-                        }}
-                      >
-                        {subtask.title}
-                      </Typography>
-                      {subtask.priority && subtask.priority !== 'Medium' && (
-                        <Chip
-                          label={subtask.priority}
-                          size="small"
-                          color={
-                            subtask.priority === 'Urgent'
-                              ? 'error'
-                              : subtask.priority === 'High'
-                              ? 'warning'
-                              : 'default'
-                          }
-                        />
-                      )}
-                    </Box>
+            {subtasks.map((subtask) => {
+              if (!subtask || !subtask._id) return null;
+
+              return (
+                <ListItem
+                  key={subtask._id}
+                  sx={{
+                    px: 0,
+                    '&:hover': { bgcolor: 'action.hover' },
+                  }}
+                  secondaryAction={
+                    <IconButton edge="end" size="small" onClick={(e) => handleOpenMenu(e, subtask)}>
+                      <MoreVert fontSize="small" />
+                    </IconButton>
                   }
-                />
-              </ListItem>
-            ))}
+                >
+                  <ListItemIcon>
+                    <Checkbox
+                      edge="start"
+                      checked={subtask.status === 'Done'}
+                      onChange={() => handleToggleSubtask(subtask)}
+                      icon={<RadioButtonUnchecked />}
+                      checkedIcon={<CheckCircle />}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography
+                          sx={{
+                            textDecoration: subtask.status === 'Done' ? 'line-through' : 'none',
+                            color: subtask.status === 'Done' ? 'text.secondary' : 'text.primary',
+                          }}
+                        >
+                          {subtask.title}
+                        </Typography>
+                        {subtask.priority && subtask.priority !== 'Medium' && (
+                          <Chip
+                            label={subtask.priority}
+                            size="small"
+                            color={
+                              subtask.priority === 'Urgent'
+                                ? 'error'
+                                : subtask.priority === 'High'
+                                ? 'warning'
+                                : 'default'
+                            }
+                          />
+                        )}
+                      </Box>
+                    }
+                  />
+                </ListItem>
+              );
+            })}
           </List>
         )}
       </CardContent>
