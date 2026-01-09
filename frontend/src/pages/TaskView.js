@@ -183,36 +183,59 @@ const TaskView = () => {
   };
 
   const handleEditComment = (comment) => {
+    if (!comment) {
+      enqueueSnackbar('Comment data is missing', { variant: 'error' });
+      return;
+    }
+    // Check if comment is within 5-minute edit window
+    const fiveMinutes = 5 * 60 * 1000;
+    const commentAge = Date.now() - new Date(comment.createdAt).getTime();
+
+    if (commentAge > fiveMinutes && !comment.isEdited) {
+      enqueueSnackbar('Edit window has expired (5 minutes after posting)', { variant: 'warning' });
+      setCommentAnchorEl(null);
+      return;
+    }
+
     setEditCommentId(comment._id);
     setEditCommentContent(comment.content);
     setCommentAnchorEl(null);
   };
 
   const handleUpdateComment = async (commentId) => {
+    if (!editCommentContent.trim()) {
+      enqueueSnackbar('Comment cannot be empty', { variant: 'error' });
+      return;
+    }
     try {
       await commentAPI.update(commentId, { content: editCommentContent });
       fetchComments();
       setEditCommentId(null);
       setEditCommentContent('');
-      enqueueSnackbar('Comment updated', { variant: 'success' });
+      enqueueSnackbar('Comment updated successfully', { variant: 'success' });
     } catch (error) {
       enqueueSnackbar(error.response?.data?.message || 'Failed to update comment', {
         variant: 'error',
       });
+      // Don't clear the edit state on error so user can try again
     }
   };
 
   const handleDeleteComment = async (commentId) => {
+    setCommentAnchorEl(null);
+    if (!commentId) {
+      enqueueSnackbar('Comment ID is missing', { variant: 'error' });
+      return;
+    }
     if (window.confirm('Are you sure you want to delete this comment?')) {
       try {
         await commentAPI.delete(commentId);
         fetchComments();
         enqueueSnackbar('Comment deleted', { variant: 'success' });
       } catch (error) {
-        enqueueSnackbar('Failed to delete comment', { variant: 'error' });
+        enqueueSnackbar(error.response?.data?.message || 'Failed to delete comment', { variant: 'error' });
       }
     }
-    setCommentAnchorEl(null);
   };
 
   const getPriorityColor = (priority) => {
@@ -315,10 +338,11 @@ const TaskView = () => {
                         {new Date(comment.createdAt).toLocaleDateString()}{' '}
                         {new Date(comment.createdAt).toLocaleTimeString()}
                       </Typography>
-                      {comment.user?._id === user._id && (
+                      {comment.user?._id && user?._id && (comment.user._id.toString() === user._id.toString()) && (
                         <IconButton
                           size="small"
                           onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedComment(comment);
                             setCommentAnchorEl(e.currentTarget);
                           }}
