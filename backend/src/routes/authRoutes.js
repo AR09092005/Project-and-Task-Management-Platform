@@ -21,7 +21,8 @@ const {
   passwordValidation,
   validate,
 } = require('../middleware/validation');
-const { authLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
+// Rate limiters removed per user request
+// const { authLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
 
 // Public routes
 router.post('/register', registerValidation, validate, register);
