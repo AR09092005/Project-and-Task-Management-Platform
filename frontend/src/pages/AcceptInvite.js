@@ -50,7 +50,7 @@ function AcceptInvite() {
   const handleAccept = async () => {
     setProcessing(true);
     try {
-      const response = await inviteAPI.accept(token);
+      await inviteAPI.accept(token);
       enqueueSnackbar('Invitation accepted successfully!', { variant: 'success' });
       // Navigate to dashboard to see the new project
       // Using window.location for a full page reload to ensure fresh data

@@ -22,7 +22,6 @@ import {
   FormControl,
   InputLabel,
   Select,
-  OutlinedInput,
 } from '@mui/material';
 import {
   Add as AddIcon,
