@@ -60,6 +60,7 @@ const taskRoutes = require('./routes/taskRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const inviteRoutes = require('./routes/inviteRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const attachmentRoutes = require('./routes/attachmentRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
@@ -70,6 +71,7 @@ app.use('/api/tasks', taskRoutes);
 // Nested routes
 app.use('/api/projects/:projectId/tasks', taskRoutes);
 app.use('/api/tasks/:taskId/comments', commentRoutes);
+app.use('/api/tasks/:taskId/attachments', attachmentRoutes);
 
 // For invites endpoint on projects
 const { createInvite, getProjectInvites } = require('./controllers/inviteController');

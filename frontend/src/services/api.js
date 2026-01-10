@@ -101,4 +101,20 @@ export const notificationAPI = {
   delete: (id) => api.delete(`/notifications/${id}`),
 };
 
+// Attachment API
+export const attachmentAPI = {
+  getAll: (taskId) => api.get(`/tasks/${taskId}/attachments`),
+  upload: (taskId, formData) =>
+    api.post(`/tasks/${taskId}/attachments`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
+  download: (taskId, filename) =>
+    api.get(`/tasks/${taskId}/attachments/files/${filename}`, {
+      responseType: 'blob',
+    }),
+  delete: (taskId, id) => api.delete(`/tasks/${taskId}/attachments/${id}`),
+};
+
 export default api;

@@ -16,9 +16,12 @@ const attachmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    fileUrl: {
+    filePath: {
       type: String,
       required: true,
+    },
+    fileUrl: {
+      type: String,
     },
     fileSize: {
       type: Number,
@@ -28,6 +31,11 @@ const attachmentSchema = new mongoose.Schema(
     mimeType: {
       type: String,
       required: true,
+    },
+    storageType: {
+      type: String,
+      enum: ['local', 's3'],
+      default: 'local',
     },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -73,5 +81,22 @@ attachmentSchema.statics.getTaskTotalSize = async function (taskId) {
   const attachments = await this.find({ task: taskId, isDeleted: false });
   return attachments.reduce((total, att) => total + att.fileSize, 0);
 };
+
+// Virtual for file extension
+attachmentSchema.virtual('extension').get(function () {
+  return this.originalName.split('.').pop().toLowerCase();
+});
+
+// Virtual for formatted file size
+attachmentSchema.virtual('fileSizeFormatted').get(function () {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  if (this.fileSize === 0) return '0 Bytes';
+  const i = parseInt(Math.floor(Math.log(this.fileSize) / Math.log(1024)));
+  return Math.round((this.fileSize / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
+});
+
+// Ensure virtuals are included when converting to JSON
+attachmentSchema.set('toJSON', { virtuals: true });
+attachmentSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('Attachment', attachmentSchema);

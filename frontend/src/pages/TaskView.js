@@ -33,6 +33,7 @@ import { taskAPI, commentAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Subtasks from '../components/Subtasks';
 import TaskDependencies from '../components/TaskDependencies';
+import FileAttachments from '../components/FileAttachments';
 
 const TaskView = () => {
   const { projectId, taskId } = useParams();
@@ -493,6 +494,8 @@ const TaskView = () => {
           <Box sx={{ mt: 2 }}>
             <TaskDependencies task={task} projectTasks={projectTasks} onUpdate={fetchTask} />
           </Box>
+
+          <FileAttachments task={task} onUpdate={fetchTask} />
         </Grid>
       </Grid>
 
