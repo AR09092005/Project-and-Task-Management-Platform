@@ -61,12 +61,14 @@ const commentRoutes = require('./routes/commentRoutes');
 const inviteRoutes = require('./routes/inviteRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const attachmentRoutes = require('./routes/attachmentRoutes');
+const calendarRoutes = require('./routes/calendarRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/invites', inviteRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Nested routes
 app.use('/api/projects/:projectId/tasks', taskRoutes);

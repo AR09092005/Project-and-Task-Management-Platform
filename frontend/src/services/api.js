@@ -117,4 +117,24 @@ export const attachmentAPI = {
   delete: (taskId, id) => api.delete(`/tasks/${taskId}/attachments/${id}`),
 };
 
+// Calendar API
+export const calendarAPI = {
+  // Google Calendar
+  getGoogleAuthUrl: () => api.get('/calendar/google/auth-url'),
+  handleGoogleCallback: (code) => api.post('/calendar/google/callback', { code }),
+
+  // Calendar syncs
+  getSyncs: () => api.get('/calendar/syncs'),
+  toggleSync: (id, syncEnabled) => api.put(`/calendar/syncs/${id}/toggle`, { syncEnabled }),
+  disconnect: (id) => api.delete(`/calendar/syncs/${id}`),
+
+  // Sync tasks
+  syncTask: (taskId) => api.post(`/calendar/tasks/${taskId}/sync`),
+
+  // iCal export
+  exportProject: (projectId) =>
+    api.get(`/calendar/export/project/${projectId}`, { responseType: 'blob' }),
+  exportMyTasks: () => api.get('/calendar/export/my-tasks', { responseType: 'blob' }),
+};
+
 export default api;
