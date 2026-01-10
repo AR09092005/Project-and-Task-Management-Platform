@@ -79,8 +79,8 @@ export const taskAPI = {
 export const commentAPI = {
   getAll: (taskId) => api.get(`/tasks/${taskId}/comments`),
   create: (taskId, data) => api.post(`/tasks/${taskId}/comments`, data),
-  update: (id, data) => api.put(`/comments/${id}`, data),
-  delete: (id) => api.delete(`/comments/${id}`),
+  update: (taskId, id, data) => api.put(`/tasks/${taskId}/comments/${id}`, data),
+  delete: (taskId, id) => api.delete(`/tasks/${taskId}/comments/${id}`),
 };
 
 // Invite API

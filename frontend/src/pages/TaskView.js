@@ -208,7 +208,7 @@ const TaskView = () => {
       return;
     }
     try {
-      await commentAPI.update(commentId, { content: editCommentContent });
+      await commentAPI.update(taskId, commentId, { content: editCommentContent });
       fetchComments();
       setEditCommentId(null);
       setEditCommentContent('');
@@ -229,7 +229,7 @@ const TaskView = () => {
     }
     if (window.confirm('Are you sure you want to delete this comment?')) {
       try {
-        await commentAPI.delete(commentId);
+        await commentAPI.delete(taskId, commentId);
         fetchComments();
         enqueueSnackbar('Comment deleted', { variant: 'success' });
       } catch (error) {
