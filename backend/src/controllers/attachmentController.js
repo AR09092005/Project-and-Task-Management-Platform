@@ -22,7 +22,7 @@ exports.uploadAttachment = async (req, res) => {
     }
 
     // Check if user has access to the project
-    const isMember = task.project.team.some(
+    const isMember = task.project.members.some(
       (member) => member.user.toString() === req.user._id.toString()
     );
     if (!isMember && task.project.owner.toString() !== req.user._id.toString()) {
@@ -115,7 +115,7 @@ exports.getTaskAttachments = async (req, res) => {
     }
 
     // Check if user has access to the project
-    const isMember = task.project.team.some(
+    const isMember = task.project.members.some(
       (member) => member.user.toString() === req.user._id.toString()
     );
     if (!isMember && task.project.owner.toString() !== req.user._id.toString()) {
@@ -172,7 +172,7 @@ exports.downloadAttachment = async (req, res) => {
 
     // Check if user has access to the project
     const task = attachment.task;
-    const isMember = task.project.team.some(
+    const isMember = task.project.members.some(
       (member) => member.user.toString() === req.user._id.toString()
     );
     if (!isMember && task.project.owner.toString() !== req.user._id.toString()) {
@@ -228,7 +228,7 @@ exports.deleteAttachment = async (req, res) => {
     const task = attachment.task;
     const isUploader = attachment.uploadedBy.toString() === req.user._id.toString();
     const isProjectOwner = task.project.owner.toString() === req.user._id.toString();
-    const isAdmin = task.project.team.some(
+    const isAdmin = task.project.members.some(
       (member) =>
         member.user.toString() === req.user._id.toString() &&
         member.role === 'Admin'
