@@ -1,4 +1,4 @@
-const ical = require('ical-generator');
+const ical = require('ical-generator').default;
 
 class ICalService {
   // Generate iCal file for a project's tasks
