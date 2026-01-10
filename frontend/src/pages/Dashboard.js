@@ -154,9 +154,10 @@ const Dashboard = () => {
                   bgcolor: 'rgba(255,255,255,0.9)',
                 },
               }}
-          >
-            New Project
-          </Button>
+            >
+              New Project
+            </Button>
+          </Box>
         </Box>
 
         {/* Stats Cards */}
