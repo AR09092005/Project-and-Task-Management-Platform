@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard';
 import ProjectView from './pages/ProjectView';
 import TaskView from './pages/TaskView';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import CalendarCallback from './pages/CalendarCallback';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import AcceptInvite from './pages/AcceptInvite';
@@ -55,9 +57,13 @@ function App() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="settings" element={<Settings />} />
         <Route path="projects/:projectId" element={<ProjectView />} />
         <Route path="projects/:projectId/tasks/:taskId" element={<TaskView />} />
       </Route>
+
+      {/* Calendar OAuth callback */}
+      <Route path="/calendar/callback/google" element={<CalendarCallback />} />
 
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
