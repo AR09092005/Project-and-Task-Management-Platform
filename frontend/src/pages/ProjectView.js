@@ -33,9 +33,10 @@ import {
   FilterList,
   Link as LinkIcon,
   Checklist,
+  Download,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import { projectAPI, taskAPI } from '../services/api';
+import { projectAPI, taskAPI, calendarAPI } from '../services/api';
 import TeamMembers from '../components/TeamMembers';
 import ViewSwitcher from '../components/ViewSwitcher';
 import KanbanBoard from '../components/KanbanBoard';
@@ -241,6 +242,27 @@ const ProjectView = () => {
     return colors[status] || 'default';
   };
 
+  const handleExportIcal = async () => {
+    try {
+      const response = await calendarAPI.exportProject(projectId);
+
+      // Create blob URL and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${project.name}.ics`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('Calendar exported successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Export iCal error:', error);
+      enqueueSnackbar('Failed to export calendar', { variant: 'error' });
+    }
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
   if (!project) return <Typography>Project not found</Typography>;
 
@@ -254,6 +276,14 @@ const ProjectView = () => {
           <Typography variant="h4">{project.name}</Typography>
           <Typography color="text.secondary">{project.description}</Typography>
         </Box>
+        <Button
+          variant="outlined"
+          startIcon={<Download />}
+          onClick={handleExportIcal}
+          sx={{ mr: 1 }}
+        >
+          Export iCal
+        </Button>
         <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ mr: 1 }}>
           <MoreVert />
         </IconButton>

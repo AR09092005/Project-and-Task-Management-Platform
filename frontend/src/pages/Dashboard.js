@@ -20,9 +20,10 @@ import {
   FolderOpen as FolderIcon,
   People as PeopleIcon,
   Assignment as AssignmentIcon,
+  Download,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import { projectAPI } from '../services/api';
+import { projectAPI, calendarAPI } from '../services/api';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -82,6 +83,27 @@ const Dashboard = () => {
     return colors[status] || 'default';
   };
 
+  const handleExportMyTasks = async () => {
+    try {
+      const response = await calendarAPI.exportMyTasks();
+
+      // Create blob URL and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'my-tasks.ics');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('Tasks exported successfully', { variant: 'success' });
+    } catch (error) {
+      console.error('Export tasks error:', error);
+      enqueueSnackbar('Failed to export tasks', { variant: 'error' });
+    }
+  };
+
   return (
     <Box sx={{ pb: 4 }}>
       {/* Header Section */}
@@ -103,18 +125,35 @@ const Dashboard = () => {
               Manage and track all your projects in one place
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<AddIcon />}
-            onClick={() => setOpenDialog(true)}
-            sx={{
-              bgcolor: 'white',
-              color: 'primary.main',
-              '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.9)',
-              },
-            }}
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              variant="outlined"
+              size="large"
+              startIcon={<Download />}
+              onClick={handleExportMyTasks}
+              sx={{
+                borderColor: 'white',
+                color: 'white',
+                '&:hover': {
+                  borderColor: 'white',
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            >
+              Export My Tasks
+            </Button>
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={<AddIcon />}
+              onClick={() => setOpenDialog(true)}
+              sx={{
+                bgcolor: 'white',
+                color: 'primary.main',
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,0.9)',
+                },
+              }}
           >
             New Project
           </Button>
