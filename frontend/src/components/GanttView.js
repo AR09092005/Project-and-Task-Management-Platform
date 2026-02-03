@@ -28,12 +28,27 @@ const GanttView = ({ tasks, projectId, onTaskUpdate }) => {
   }, [tasks]);
 
   const convertTasksToGanttFormat = () => {
-    const formatted = tasks.map((task) => {
-      const start = task.dueDate
-        ? new Date(Math.max(new Date(task.dueDate).getTime() - 7 * 24 * 60 * 60 * 1000, new Date().getTime()))
-        : new Date();
+    // Filter out tasks without valid due dates
+    const validTasks = tasks.filter((task) => {
+      if (!task.dueDate) return false;
+      const date = new Date(task.dueDate);
+      return date instanceof Date && !isNaN(date.getTime());
+    });
 
-      const end = task.dueDate ? new Date(task.dueDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const formatted = validTasks.map((task) => {
+      // Parse dates safely
+      const dueDate = new Date(task.dueDate);
+      const startDate = task.startDate ? new Date(task.startDate) : null;
+
+      // Calculate start: use startDate if valid, otherwise 7 days before due date
+      let start;
+      if (startDate && !isNaN(startDate.getTime())) {
+        start = startDate;
+      } else {
+        start = new Date(Math.max(dueDate.getTime() - 7 * 24 * 60 * 60 * 1000, new Date().getTime()));
+      }
+
+      const end = dueDate;
 
       // Calculate progress based on subtasks or status
       let progress = 0;
