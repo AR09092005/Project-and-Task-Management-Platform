@@ -50,6 +50,17 @@ const GanttView = ({ tasks, projectId, onTaskUpdate }) => {
 
       const end = dueDate;
 
+      // Ensure start is before end
+      if (start >= end) {
+        start = new Date(end.getTime() - 24 * 60 * 60 * 1000); // 1 day before end
+      }
+
+      // Final validation - ensure both dates are valid
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        console.warn(`Invalid dates for task ${task._id}, skipping`);
+        return null;
+      }
+
       // Calculate progress based on subtasks or status
       let progress = 0;
       if (task.subtasks && task.subtasks.length > 0) {
@@ -86,7 +97,7 @@ const GanttView = ({ tasks, projectId, onTaskUpdate }) => {
           progressSelectedColor: getProgressColor(task.status),
         },
       };
-    });
+    }).filter(task => task !== null); // Remove any null entries from invalid dates
 
     setGanttTasks(formatted);
   };
@@ -263,24 +274,30 @@ const GanttView = ({ tasks, projectId, onTaskUpdate }) => {
       </Box>
 
       <Box ref={ganttRef} sx={{ overflow: 'auto' }}>
-        <Gantt
-          tasks={ganttTasks}
-          viewMode={viewMode}
-          onDateChange={handleTaskChange}
-          onProgressChange={handleProgressChange}
-          onDoubleClick={handleDoubleClick}
-          listCellWidth="200px"
-          columnWidth={viewMode === ViewMode.Month ? 300 : viewMode === ViewMode.Week ? 250 : 65}
-          rowHeight={50}
-          barCornerRadius={5}
-          barProgressColor="#ffffff"
-          barProgressSelectedColor="#ffffff"
-          arrowColor="#999"
-          arrowIndent={20}
-          todayColor="rgba(252, 248, 227, 0.5)"
-          fontSize="14px"
-          fontFamily="Inter, Roboto, Helvetica, Arial, sans-serif"
-        />
+        {ganttTasks.length > 0 ? (
+          <Gantt
+            tasks={ganttTasks}
+            viewMode={viewMode}
+            onDateChange={handleTaskChange}
+            onProgressChange={handleProgressChange}
+            onDoubleClick={handleDoubleClick}
+            listCellWidth="200px"
+            columnWidth={viewMode === ViewMode.Month ? 300 : viewMode === ViewMode.Week ? 250 : 65}
+            rowHeight={50}
+            barCornerRadius={5}
+            barProgressColor="#ffffff"
+            barProgressSelectedColor="#ffffff"
+            arrowColor="#999"
+            arrowIndent={20}
+            todayColor="rgba(252, 248, 227, 0.5)"
+            fontSize="14px"
+            fontFamily="Inter, Roboto, Helvetica, Arial, sans-serif"
+          />
+        ) : (
+          <Typography color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
+            No valid tasks to display in Gantt chart
+          </Typography>
+        )}
       </Box>
     </Paper>
   );
