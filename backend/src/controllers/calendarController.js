@@ -250,14 +250,17 @@ exports.syncTaskToCalendar = async (req, res) => {
 exports.exportProjectIcal = async (req, res) => {
   try {
     const { projectId } = req.params;
+    console.log(`[Export Project iCal] Request for project: ${projectId}, User: ${req.user._id}`);
 
     const project = await Project.findById(projectId);
     if (!project) {
+      console.log(`[Export Project iCal] Project not found: ${projectId}`);
       return res.status(404).json({
         success: false,
         message: 'Project not found',
       });
     }
+    console.log(`[Export Project iCal] Found project: ${project.name}`);
 
     // Check if user has access
     const isMember = project.members.some(
@@ -275,13 +278,24 @@ exports.exportProjectIcal = async (req, res) => {
       isDeleted: false,
     }).populate('assignees', 'name email');
 
-    const icalData = icalService.generateProjectCalendar(project, tasks);
+    console.log(`[Export Project iCal] Found ${tasks.length} tasks for project`);
 
-    res.setHeader('Content-Type', 'text/calendar');
-    res.setHeader('Content-Disposition', `attachment; filename="${project.name}.ics"`);
+    const icalData = icalService.generateProjectCalendar(project, tasks);
+    console.log(`[Export Project iCal] Generated iCal data (${icalData.length} bytes)`);
+
+    // Sanitize filename for Content-Disposition header
+    const sanitizedName = project.name
+      .replace(/[^a-z0-9]/gi, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '') || 'project';
+
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${sanitizedName}.ics"`);
     res.send(icalData);
+    console.log(`[Export Project iCal] Successfully sent iCal file: ${sanitizedName}.ics`);
   } catch (error) {
-    console.error('Export project iCal error:', error);
+    console.error('[Export Project iCal] Error:', error.message);
+    console.error('[Export Project iCal] Stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Failed to export calendar',
@@ -293,18 +307,25 @@ exports.exportProjectIcal = async (req, res) => {
 // Export user's tasks as iCal
 exports.exportUserIcal = async (req, res) => {
   try {
+    console.log(`[Export User iCal] Request from user: ${req.user._id} (${req.user.name})`);
+
     const tasks = await Task.find({
       assignees: req.user._id,
       isDeleted: false,
     }).populate('assignees', 'name email').populate('project', 'name _id');
 
-    const icalData = icalService.generateUserCalendar(req.user, tasks);
+    console.log(`[Export User iCal] Found ${tasks.length} tasks for user`);
 
-    res.setHeader('Content-Type', 'text/calendar');
-    res.setHeader('Content-Disposition', `attachment; filename="my-tasks.ics"`);
+    const icalData = icalService.generateUserCalendar(req.user, tasks);
+    console.log(`[Export User iCal] Generated iCal data (${icalData.length} bytes)`);
+
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="my-tasks.ics"');
     res.send(icalData);
+    console.log(`[Export User iCal] Successfully sent iCal file: my-tasks.ics`);
   } catch (error) {
-    console.error('Export user iCal error:', error);
+    console.error('[Export User iCal] Error:', error.message);
+    console.error('[Export User iCal] Stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Failed to export calendar',
