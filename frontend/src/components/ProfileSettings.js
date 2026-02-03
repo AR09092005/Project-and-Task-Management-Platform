@@ -31,6 +31,8 @@ import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const ProfileSettings = () => {
   const { user, updateUser } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
@@ -82,7 +84,7 @@ const ProfileSettings = () => {
           showPhone: user.privacySettings?.showPhone || false,
         },
       });
-      setPreviewImage(user.profilePicture ? `http://localhost:5000${user.profilePicture}` : null);
+      setPreviewImage(user.profilePicture ? `${API_URL}${user.profilePicture}` : null);
     }
   }, [user]);
 
@@ -137,7 +139,7 @@ const ProfileSettings = () => {
       formData.append('profilePicture', file);
 
       const response = await axios.post(
-        'http://localhost:5000/api/auth/profile/picture',
+        `${API_URL}/api/auth/profile/picture`,
         formData,
         {
           headers: {
@@ -156,7 +158,7 @@ const ProfileSettings = () => {
       enqueueSnackbar(error.response?.data?.message || 'Failed to upload image', {
         variant: 'error',
       });
-      setPreviewImage(user.profilePicture ? `http://localhost:5000${user.profilePicture}` : null);
+      setPreviewImage(user.profilePicture ? `${API_URL}${user.profilePicture}` : null);
     } finally {
       setUploading(false);
     }
