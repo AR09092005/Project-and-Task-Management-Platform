@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Popover,
   Box,
@@ -13,6 +14,7 @@ import {
   Button,
   Badge,
   Chip,
+  ListItemButton,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -21,6 +23,7 @@ import {
   PersonAdd,
   TaskAlt,
   Comment as CommentIcon,
+  Mail as MailIcon,
 } from '@mui/icons-material';
 import { notificationAPI } from '../services/api';
 import { useSnackbar } from 'notistack';
@@ -28,6 +31,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useSocket } from '../context/SocketContext';
 
 const Notifications = () => {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -44,7 +48,7 @@ const Notifications = () => {
       socket.on('new_notification', (notification) => {
         setNotifications((prev) => [notification, ...prev]);
         fetchUnreadCount();
-        enqueueSnackbar(notification.message, { variant: 'info' });
+        enqueueSnackbar(notification.content || notification.title, { variant: 'info' });
       });
 
       socket.on('notification_read', (notificationId) => {
@@ -133,16 +137,31 @@ const Notifications = () => {
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case 'invite':
-        return <PersonAdd color="primary" />;
+      case 'project_invite':
+        return <MailIcon color="primary" />;
+      case 'project_member_added':
+        return <PersonAdd color="success" />;
       case 'task_assigned':
-        return <TaskAlt color="success" />;
+        return <TaskAlt color="info" />;
       case 'task_completed':
         return <TaskAlt color="success" />;
-      case 'comment':
+      case 'task_due_soon':
+        return <TaskAlt color="warning" />;
+      case 'comment_mention':
+      case 'comment_added':
         return <CommentIcon color="info" />;
       default:
         return <NotificationsIcon />;
+    }
+  };
+
+  const handleNotificationClick = (notification) => {
+    if (notification.actionUrl) {
+      handleClose();
+      navigate(notification.actionUrl);
+      if (!notification.isRead) {
+        handleMarkAsRead(notification._id);
+      }
     }
   };
 
@@ -196,32 +215,12 @@ const Notifications = () => {
             <List sx={{ p: 0, maxHeight: 500, overflow: 'auto' }}>
               {notifications.map((notification) => (
                 <React.Fragment key={notification._id}>
-                  <ListItem
+                  <ListItemButton
+                    onClick={() => handleNotificationClick(notification)}
                     sx={{
                       bgcolor: notification.isRead ? 'transparent' : 'action.hover',
                       '&:hover': { bgcolor: 'action.selected' },
                     }}
-                    secondaryAction={
-                      <Box>
-                        {!notification.isRead && (
-                          <IconButton
-                            edge="end"
-                            size="small"
-                            onClick={() => handleMarkAsRead(notification._id)}
-                            sx={{ mr: 1 }}
-                          >
-                            <Check fontSize="small" />
-                          </IconButton>
-                        )}
-                        <IconButton
-                          edge="end"
-                          size="small"
-                          onClick={() => handleDelete(notification._id)}
-                        >
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    }
                   >
                     <ListItemAvatar>
                       <Avatar sx={{ bgcolor: 'background.paper' }}>
@@ -230,18 +229,47 @@ const Notifications = () => {
                     </ListItemAvatar>
                     <ListItemText
                       primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body2">{notification.message}</Typography>
-                          {!notification.isRead && (
-                            <Chip label="New" size="small" color="primary" />
-                          )}
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="subtitle2" fontWeight={!notification.isRead ? 600 : 400}>
+                              {notification.title}
+                            </Typography>
+                            {!notification.isRead && (
+                              <Chip label="New" size="small" color="primary" />
+                            )}
+                          </Box>
+                          <Typography variant="body2" color="text.secondary">
+                            {notification.content}
+                          </Typography>
                         </Box>
                       }
                       secondary={formatDistanceToNow(new Date(notification.createdAt), {
                         addSuffix: true,
                       })}
                     />
-                  </ListItem>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, ml: 1 }}>
+                      {!notification.isRead && (
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkAsRead(notification._id);
+                          }}
+                        >
+                          <Check fontSize="small" />
+                        </IconButton>
+                      )}
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(notification._id);
+                        }}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </ListItemButton>
                   <Divider component="li" />
                 </React.Fragment>
               ))}
