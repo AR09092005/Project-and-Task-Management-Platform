@@ -247,7 +247,21 @@ exports.updateProfile = async (req, res, next) => {
       name: req.body.name,
       timezone: req.body.timezone,
       profilePicture: req.body.profilePicture,
+      bio: req.body.bio,
+      phone: req.body.phone,
+      location: req.body.location,
+      jobTitle: req.body.jobTitle,
+      company: req.body.company,
     };
+
+    // Handle nested objects
+    if (req.body.socialLinks) {
+      fieldsToUpdate.socialLinks = req.body.socialLinks;
+    }
+
+    if (req.body.privacySettings) {
+      fieldsToUpdate.privacySettings = req.body.privacySettings;
+    }
 
     // Remove undefined fields
     Object.keys(fieldsToUpdate).forEach(
@@ -266,6 +280,43 @@ exports.updateProfile = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Upload profile picture
+// @route   POST /api/auth/profile/picture
+// @access  Private
+exports.uploadProfilePicture = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload an image file',
+      });
+    }
+
+    // Get file URL (relative path)
+    const profilePictureUrl = `/uploads/${req.file.filename}`;
+
+    // Update user profile picture
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePicture: profilePictureUrl },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return next(new ErrorResponse('User not found', 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        profilePicture: profilePictureUrl,
+      },
     });
   } catch (error) {
     next(error);

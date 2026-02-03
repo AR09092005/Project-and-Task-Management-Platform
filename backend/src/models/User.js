@@ -28,6 +28,49 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    bio: {
+      type: String,
+      maxlength: [500, 'Bio cannot exceed 500 characters'],
+      default: '',
+    },
+    phone: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    location: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Location cannot exceed 100 characters'],
+      default: '',
+    },
+    jobTitle: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Job title cannot exceed 100 characters'],
+      default: '',
+    },
+    company: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Company cannot exceed 100 characters'],
+      default: '',
+    },
+    socialLinks: {
+      github: { type: String, default: '' },
+      linkedin: { type: String, default: '' },
+      twitter: { type: String, default: '' },
+      website: { type: String, default: '' },
+    },
+    privacySettings: {
+      profileVisibility: {
+        type: String,
+        enum: ['public', 'team', 'private'],
+        default: 'team',
+      },
+      showEmail: { type: Boolean, default: false },
+      showPhone: { type: Boolean, default: false },
+    },
     timezone: {
       type: String,
       default: 'UTC',

@@ -16,6 +16,7 @@ import {
   Notifications,
 } from '@mui/icons-material';
 import CalendarSettings from '../components/CalendarSettings';
+import ProfileSettings from '../components/ProfileSettings';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -64,12 +65,7 @@ const Settings = () => {
         </TabPanel>
 
         <TabPanel value={activeTab} index={1}>
-          <Typography variant="h5" gutterBottom>
-            Profile Settings
-          </Typography>
-          <Typography color="text.secondary">
-            Profile settings coming soon...
-          </Typography>
+          <ProfileSettings />
         </TabPanel>
 
         <TabPanel value={activeTab} index={2}>

@@ -10,10 +10,12 @@ const {
   forgotPassword,
   resetPassword,
   updateProfile,
+  uploadProfilePicture,
   updatePassword,
   updateNotificationPreferences,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
+const { upload, handleMulterError } = require('../middleware/upload');
 const {
   registerValidation,
   loginValidation,
@@ -68,6 +70,7 @@ router.get('/microsoft/callback',
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
+router.post('/profile/picture', protect, upload.single('profilePicture'), handleMulterError, uploadProfilePicture);
 router.put('/update-password', protect, passwordValidation, validate, updatePassword);
 router.put('/notification-preferences', protect, updateNotificationPreferences);
 

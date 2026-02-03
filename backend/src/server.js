@@ -53,6 +53,10 @@ if (process.env.NODE_ENV === 'development') {
 // Rate limiting disabled per user request
 // app.use('/api/', apiLimiter);
 
+// Serve uploaded files
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
