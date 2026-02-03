@@ -2,14 +2,21 @@ const nodemailer = require('nodemailer');
 
 // Create reusable transporter
 const createTransporter = () => {
+  const port = parseInt(process.env.SMTP_PORT) || 587;
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: false, // true for 465, false for other ports (587 uses STARTTLS)
+    port: port,
+    secure: port === 465, // true for 465, false for other ports
+    requireTLS: port === 587, // Required for Gmail on port 587
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASSWORD,
     },
+    tls: {
+      // Don't fail on invalid certs (for development)
+      rejectUnauthorized: process.env.NODE_ENV === 'production'
+    }
   });
 };
 
@@ -24,23 +31,39 @@ exports.sendEmail = async (options) => {
 
   const transporter = createTransporter();
 
+  // For Gmail, use SMTP_USER as the FROM address (Gmail requirement)
+  const fromAddress = process.env.SMTP_HOST === 'smtp.gmail.com'
+    ? process.env.SMTP_USER
+    : process.env.EMAIL_FROM;
+
   const message = {
-    from: `${process.env.EMAIL_FROM_NAME || 'Task Management'} <${process.env.EMAIL_FROM}>`,
+    from: `${process.env.EMAIL_FROM_NAME || 'Task Management Platform'} <${fromAddress}>`,
     to: options.email,
     subject: options.subject,
     html: options.html,
   };
 
+  console.log(`📧 Attempting to send email to: ${options.email} from: ${fromAddress}`);
+
   try {
     const info = await transporter.sendMail(message);
-    console.log('✅ Email sent successfully:', info.messageId);
+    console.log('✅ Email sent successfully to:', options.email);
+    console.log('   Message ID:', info.messageId);
+    console.log('   Response:', info.response);
     return info;
   } catch (error) {
-    console.error('❌ Email sending failed:', error.message);
+    console.error('❌ Email sending failed');
+    console.error('   To:', options.email);
+    console.error('   Error code:', error.code);
+    console.error('   Error message:', error.message);
+    console.error('   Command:', error.command);
+
     if (error.code === 'EAUTH') {
       throw new Error('Email authentication failed. Check SMTP_USER and SMTP_PASSWORD in .env');
-    } else if (error.code === 'ECONNECTION') {
+    } else if (error.code === 'ECONNECTION' || error.code === 'ESOCKET') {
       throw new Error('Could not connect to email server. Check SMTP_HOST and SMTP_PORT in .env');
+    } else if (error.responseCode === 535) {
+      throw new Error('Gmail authentication failed. Make sure you are using an App Password, not your regular password');
     }
     throw error;
   }
