@@ -17,7 +17,7 @@ exports.sendTokenResponse = (user, statusCode, res, redirectUrl = null) => {
     expires: new Date(Date.now() + cookieExpire * 24 * 60 * 60 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax', // Changed from 'strict' to 'lax' for OAuth redirects
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-origin in production
   };
 
   // Remove sensitive data
@@ -49,5 +49,7 @@ exports.clearTokenCookie = (res) => {
   res.cookie('jwt', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   });
 };
