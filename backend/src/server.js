@@ -28,8 +28,10 @@ const io = socketio(server, {
 app.set('io', io);
 exports.io = io;
 
-// Connect to database
-connectDB();
+// Connect to database (skip in test mode - tests use in-memory DB)
+if (process.env.NODE_ENV !== 'test') {
+  connectDB();
+}
 
 // Middleware
 app.use(helmet()); // Security headers
@@ -176,12 +178,14 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start server
+// Start server only if not in test mode
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
@@ -199,3 +203,6 @@ process.on('SIGTERM', () => {
     console.log('Process terminated');
   });
 });
+
+// Export app for testing
+module.exports = app;
