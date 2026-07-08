@@ -46,16 +46,6 @@ A comprehensive web-based collaborative task management system designed for coll
   - Configurable notification preferences
   - Unread notification count
 
-### Advanced Features (Planned)
-- 📅 Gantt chart visualization
-- 📆 Calendar view integration (Google Calendar & Outlook)
-- 📊 Advanced analytics and reporting
-- 📁 File attachments with cloud storage (AWS S3)
-- 🔍 Advanced search and filtering
-- 📱 Push notifications
-- 🌙 Dark mode
-- ♿ WCAG 2.1 Level AA accessibility
-
 ## 🛠️ Tech Stack
 
 ### Backend
@@ -330,7 +320,7 @@ Project-and-Task-Management-Platform/
 - **Comments:** Task comments and mentions
 - **Invites:** Project invitations
 - **Notifications:** User notifications
-- **Attachments:** File attachments (future)
+- **Attachments:** File attachments
 
 ## 🧪 Testing
 
@@ -376,20 +366,6 @@ MIT License
 ## 📞 Support
 
 For issues and questions, please create an issue in the GitHub repository.
-
-## 🎯 Roadmap
-
-- [ ] Gantt chart visualization
-- [ ] Calendar integration (Google & Outlook)
-- [ ] File attachment support
-- [ ] Advanced search and filters
-- [ ] Mobile app (React Native)
-- [ ] Dark mode
-- [ ] Multiple board views (Kanban, List, Calendar)
-- [ ] Email digest notifications
-- [ ] Performance analytics
-- [ ] API rate limiting per user
-- [ ] Two-factor authentication
 
 ---
 
